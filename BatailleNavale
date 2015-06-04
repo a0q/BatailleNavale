@@ -1,0 +1,234 @@
+import java.util.*;
+
+public class BatailleNavale {
+	
+	public static void main (String args[]) {
+		
+		String[] nomsBat = {"porte-avions", "croiseur", "contre-torpilleurs", "sous-marin", "torpilleur"}; //Noms des beateaux en jeu
+		int[] tailleBat = {5, 4, 3, 3, 2}; // Taille des bateaux
+		String[] nomsJoueurs; // Stockage du nom des joueurs
+		int longueur = 0; //longueur du plateau
+		int largeur = 0; // idem
+		int nbJ; //Nombre de joueurs
+		int xis; //x
+		int yec; //y
+		String tempString; //Stockage de la valeur indiquant l orientation donne
+		String winner = ""; // Le vainqueur
+		boolean gameOver = false; // Variable que indique la fin du jeu
+		boolean chuck = false; //EasterEgg
+		boolean hardModeOn = false; // Mode de jeu level God
+		Scanner sc = new Scanner(System.in);
+		Bateau[] bateaux; //tableau temporaire pour stocker les bateaux crees
+		Plateau[] plateaux; // Tableau ou sont stocker les plateaux des joueurs
+		
+		System.out.println("=============== BATAILLE NAVALE ===============\n	By Moises Torres and Victor Pinto\n");
+
+		System.out.println("	Mode de jeu ?\n	1 - 1Player \n	2 - 2Players \n	3 - 3Players"); 
+		nbJ = sc.nextInt();
+		while (nbJ > 3 || nbJ <= 0){
+			
+			System.out.println("Saisie invalide. Choisissez parmi 1, 2 ou 3.");
+			nbJ = sc.nextInt();
+		}
+		
+		bateaux = new Bateau[nomsBat.length];
+		plateaux = new Plateau[nbJ+1];
+		nomsJoueurs = new String[nbJ];
+		
+		//ASSIGNATION DE NOMBRE DE JOUEURS
+		
+		for (int h = 0; h < nbJ; h++)
+		{
+			System.out.println("	Votre prenom ?");
+			nomsJoueurs[h] = sc.next();
+			
+			if (nomsJoueurs[h].equals("ChuckNorris")){
+				plateaux[0] = new Plateau("#error404",1,1);
+				chuck = true;
+				winner = "	Chuck Norris, il est invincible! ";
+				gameOver = true;
+				break;
+			}
+			System.out.println("	Bienvenu, " + nomsJoueurs[h]);
+			
+			System.out.println("	Longueur du plateau ? ( >= 9 )");
+			longueur = sc.nextInt();
+			while (longueur < 9){
+				System.out.println("Saisie invalide. Tapez une valeur superieure a 5.");
+				longueur = sc.nextInt();
+			}
+			
+			System.out.println("	Largeur du plateau ? ( >= 9 )");
+			largeur = sc.nextInt();
+			while (largeur < 9){
+				System.out.println("Saisie invalide. Tapez une valeur superieure a 5.");
+				largeur = sc.nextInt();
+			}
+			plateaux[h] = new Plateau(nomsJoueurs[h], longueur, largeur);
+			
+			//PLACEMENT DES BATEAUX
+			
+			System.out.println("	* PLACEMENT DES BATEAUX *");
+			for (int i = 0; i < bateaux.length; i++)
+			{
+				System.out.println("	x ? de: 1 " + nomsBat[i] + " (" + tailleBat[i] + " cases)");
+				System.out.println("	");
+				plateaux[h].affichePlateau(false); //Muestra plateaux con barcos
+				System.out.println("	");
+				
+				xis = sc.nextInt();
+				while (xis >= longueur || xis < 0){
+					System.out.println("Saisie invalide. Tapez une valeur comprise entre [0 - " + (longueur-1) + "]");
+					xis = sc.nextInt();
+				}
+				
+				System.out.println("	 y ?");
+				yec = sc.nextInt();
+				while (yec >= largeur || yec < 0){
+					System.out.println("Saisie invalide. Tapez une valeur comprise entre [0 - " + (largeur-1) + "]");
+					yec = sc.nextInt();
+				}
+				System.out.println("	Orientation ? (v pour verticale et h pour horizontale)");
+				tempString = sc.next();
+				while (tempString.charAt(0)!='v' && tempString.charAt(0)!='h'){
+					System.out.println("Saisie invalide. Tapez 'v' pour verticale ou  'h' pour horizontale");
+					tempString = sc.next();
+				}
+				bateaux[i] = new Bateau(nomsBat[i], tailleBat[i], stringToBoolean(tempString, 'v', 'h'));
+				bateaux[i].setPosBateau(xis, yec, plateaux[h]); //donne coordones aux bateaux 
+				
+			}
+			plateaux[h].bateauCreator(getCopie(bateaux));
+			clearBateaux(bateaux);
+			System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+		}
+		
+		//CREE LE PLATEAUX ET LES BATEAUX DU CPU
+		
+		if (nbJ == 1 && !chuck){
+			System.out.println("	Dificulte du CPU ?\n	n - Normale\n	i - Impossible (Que pour les tres forts)");
+			tempString = sc.next();
+			while (tempString.charAt(0)!='n' && tempString.charAt(0)!='i'){
+				System.out.println("Saisie invalide. Tapez 'n' pour normale ou 'i' pour impossible.");
+				tempString = sc.next();
+			}
+			if (stringToBoolean(tempString, 'i', 'n')){
+				hardModeOn = true;
+			}
+			plateaux[1] = new Plateau("CPU", longueur, largeur);
+			for (int p = 0; p < nomsBat.length; p++){
+				bateaux[p] = plateaux[1].placeBateauRandom(nomsBat[p], tailleBat[p]);
+			}
+			plateaux[1].bateauCreator(getCopie(bateaux));
+			clearBateaux(bateaux);
+		} else {
+			plateaux[plateaux.length - 1] = plateaux[0];
+		}
+		
+		IA cpu = new IA(plateaux[0].getPlateau(), true);
+		
+		//INTRODUCTION
+		
+		System.out.println("	Be ready to the battle! The game will start soon!");
+		System.out.print("	");
+		for (int y = 10; y > 0; y--){
+			System.out.print(y + " ");
+			try {
+				Thread.sleep(200);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println("		GO!!!!");
+		
+		//JE JEU
+		
+		while (!gameOver){
+			
+			for (int i = 0; i < plateaux.length - 1; i++){
+				
+				System.out.println("	***" + plateaux[i].toString() + " : " + "TIR : x ?, y ?");
+				xis = sc.nextInt();
+				while (xis >= longueur || xis < 0){
+					System.out.println("Saisie invalide. Tapez une valeur comprise entre [0 - " + (longueur-1) + "]"); 
+					xis = sc.nextInt();
+				}
+				yec = sc.nextInt();
+				while (yec >= largeur || yec < 0){
+					System.out.println("Saisie invalide. Tapez une valeur comprise entre [0 - " + (largeur-1) + "]"); 
+					yec = sc.nextInt();
+				}
+				System.out.println("	Attaque de " + plateaux[i].toString() + " : " + plateaux[i+1].registreTirs(xis, yec));
+				plateaux[i+1].affichePlateau(true);
+				System.out.println("	");
+				
+				if (plateaux[i+1].allSinked()){
+					winner = plateaux[i].toString();
+					gameOver = true;
+					break;
+				}
+			}
+			// LE JEU DU PC
+			
+				if (nbJ == 1 && !gameOver){
+					
+					System.out.println("	Le CPU prepare son attaque..... \n");
+					try {
+						Thread.sleep(1000);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					if (hardModeOn){
+						cpu.hardMode();
+					} else {
+						cpu.generadorTiros(longueur, largeur);
+					}
+					xis = cpu.getX();
+					yec = cpu.getY();
+					System.out.print("	****Le CPU a tire dans : ");
+					System.out.println(plateaux[0].registreTirs(xis, yec));
+					cpu.generadorTiros(longueur, largeur); // Pour actualiser toujours la valeur courante de x et y
+					plateaux[0].affichePlateau(true);
+					System.out.println("	");
+					
+					if (plateaux[0].allSinked()){
+						gameOver = true;
+						winner = "	Dommage! Le PC vous a vaincu!!!";
+						break;
+					}
+				}
+		}
+		
+		System.out.println("	FELICITATIONS!!!!\n	Le gagant est : " + winner);
+		
+	}//FIN MAIN
+	
+	//Boite a Outils
+	
+	public static Bateau[] getCopie(Bateau[] bts){
+		Bateau[] tab = new Bateau[bts.length];
+		for (int i = 0; i < bts.length; i++){
+			tab[i] = bts[i]; 
+		}
+		return tab;
+	}
+	
+	public static void clearBateaux(Bateau[] bta){
+		for (int i = 0; i < bta.length; i++){
+			bta[i] = null;
+		}
+	}
+	
+	public static boolean stringToBoolean(String a, char d, char b){
+		boolean vert = a.charAt(0)== d;
+		boolean hori = a.charAt(0)== b;
+		boolean res = false;
+			if (vert){
+				res = true;
+			} else if (hori){ //Pas necessaire
+				res = false;
+			}
+			return res;
+	}
+}
+
