@@ -1,0 +1,61 @@
+/*
+ * Etats possibles:
+ * 0 - case non touchee
+ * 1 - case contenant une partie d un bateau non touchee
+ * 2 - case touche dans la mer
+ * 3 - case contenant une partie d un bateau touchee
+ * 
+ **/
+
+public class IA {
+	
+	private int x;
+	private int y;
+	private int lar;
+	private int lon;
+	private int[][] tiros;
+	private boolean[][] registro;
+	private boolean hardModeOn;
+	
+	public IA(int[][] tab, boolean a){
+		
+		tiros = tab;
+		registro = new boolean[tiros.length][tiros[0].length];
+		hardModeOn = a;
+		
+	}
+	
+	public int getX(){
+		return x;
+	}
+	
+	public int getY(){
+		return y;
+	}
+	
+	public void generadorTiros(int l, int d){  
+		lon = l;
+		lar = d;
+		x = (int)(Math.random()*l); 
+		y = (int)(Math.random()*d);
+		while (registro[y][x]){
+			x = (int)(Math.random()*l); 
+			y = (int)(Math.random()*d);
+		}
+		registro[y][x] = true;
+	}
+	
+	public void hardMode(){
+		int porcent = (int)(Math.random()*11);
+		for (int i = 0; i < tiros.length; i++){
+			for (int j = 0; j < tiros[0].length; j++){
+				if (tiros[i][j] == 1 && porcent >= 3){
+					x = j;
+					y = i;
+				} 
+			}
+		}
+		registro[y][x] = true;
+	}
+}
+
