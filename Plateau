@@ -1,0 +1,148 @@
+/*
+ * Etats possibles:
+ * 0 - case non touchee
+ * 1 - case contenant une partie d un bateau non touchee
+ * 2 - case touche dans la mer
+ * 3 - case contenant une partie d un bateau touchee
+ * 
+ **/
+import java.util.*;
+
+public class Plateau {
+	
+	private int[][] plateau;
+	private String nom;
+	private int largeur;
+	private int longueur;
+	private Bateau[] bats;
+	
+	public Plateau(String s, int l, int p){
+		
+		largeur = p;
+		longueur = l;
+		plateau = new int[largeur][longueur];
+		nom = s;
+		
+	} // Fin constructeurs
+	
+	public String toString(){
+		return " " + nom.toUpperCase();
+	}
+	
+	public Bateau[] getBateaux(){
+		return bats;
+	}
+	
+	public void bateauCreator(Bateau[] tab){
+		bats = tab;
+	}
+	
+	public boolean allSinked(){ 
+		boolean sinked;
+		sinked = true;
+		for (int i = 0; i < plateau.length; i++){
+				for (int j = 0; j < plateau[0].length; j++){
+					if (plateau[i][j] == 1){
+						sinked = false;
+						break;
+					}
+				}
+			}
+		return sinked;
+	}
+	
+	public Bateau placeBateauRandom(String n, int t){
+		
+		int temp = (int)(Math.random()*2);
+		int rdX = (int)(Math.random()*longueur);
+		int rdY = (int)(Math.random()*largeur);
+		boolean b = false;
+		Bateau bat;
+		
+		plateau[rdY][rdX] = 1;
+		if (temp == 1){
+			b = true;
+		}
+		bat = new Bateau(n, t, b);
+		bat.setPosBateau(rdX, rdY, this);
+		
+		return bat;
+	}
+	
+	public String registreTirs(int x, int y){
+		String reporte = "";
+		if (tirBateau(x, y)){
+			plateau[y][x] = 3;  //bateau touche
+			for (int i = 0; i < bats.length; i++){
+				if (bats[i].tir(x, y)){
+					reporte += " 1 ";
+					reporte += " " + bats[i].getNom().toUpperCase() +  " A ETE TOUCHE!\n";
+					if (bats[i].bateauCoule()){
+						reporte += "	LE " + bats[i].getNom().toUpperCase() + " A COULE!!!\n";
+					}
+				}
+			}
+		} else if (tirMer(x, y)){
+			plateau[y][x] = 2; // tir dans la mer
+			reporte = " DANS LA MER ";
+		} else {
+			reporte = " DANS LA MER "; 
+		}
+		return reporte;
+	}
+	
+	public int[][] getPlateau(){ 
+		return plateau;
+	}
+	
+	public boolean tirBateau(int x, int y){
+		return plateau[y][x] == 1;
+	}
+	
+	public boolean tirMer(int x, int y){
+		return plateau[y][x] == 0;
+	}
+	
+	public void affichePlateau(boolean b){ // peut se fusioner avec getPlateauString
+		System.out.println("		" + toString());
+		String[][] array = getPlateauString(b);
+		System.out.print("	");
+		for (int k = 0; k < array[0].length; k++){
+			System.out.print(" " + k + " ");
+		}
+		System.out.println("	");
+		System.out.print("	");
+		for (int i = 0; i < array.length; i++){
+			for (int j = 0; j < array[0].length; j++){
+				System.out.print(array[i][j]);
+			}
+			System.out.println(" " + i );
+			System.out.print("	");
+		}
+	}
+	
+	public String[][] getPlateauString(boolean b){
+		
+		String[][] tab = new String[plateau.length][plateau[0].length];
+		for (int i = 0; i < plateau.length; i++){
+			for (int j = 0; j < plateau[0].length; j++){
+				if (!b){
+					switch(plateau[i][j]){
+						case 0 : tab[i][j] = "[ ]"; break;
+						case 1 : tab[i][j] = "[T]"; break;
+						case 2 : tab[i][j] = "[*]"; break;
+						case 3 : tab[i][j] = "[X]"; break;
+					}
+				} else if (b) {
+					switch(plateau[i][j]){
+						case 0 : tab[i][j] = "[ ]"; break;
+						case 1 : tab[i][j] = "[ ]"; break;
+						case 2 : tab[i][j] = "[*]"; break;
+						case 3 : tab[i][j] = "[X]"; break;
+					}
+				}
+			}
+		}
+		return tab;
+	}
+}
